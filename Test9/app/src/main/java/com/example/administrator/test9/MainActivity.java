@@ -7,6 +7,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -47,20 +50,21 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     OkHttpClient client=new OkHttpClient();
-                    Request request=new Request.Builder().url("http://192.168.120.2:8080/Student.xml").build();
+                    Request request=new Request.Builder().url("http://192.168.120.2:8080/Student.json").build();
                     Response response=client.newCall(request).execute();
                     String s=response.body().string();
                     Log.d("result",s);
-                    SAXParserFactory saxParserFactory=SAXParserFactory.newInstance();
-                    XMLReader xmlReader=saxParserFactory.newSAXParser().getXMLReader();
-                    MyHolder myHolder=new MyHolder();
-                    xmlReader.setContentHandler(myHolder);
-                    xmlReader.parse(new InputSource(new StringReader(s)));
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
+                    JSONArray jsonArray=new JSONArray(s);
+                    for (int i=0;i<jsonArray.length();i++){
+                        JSONObject object=jsonArray.getJSONObject(i);
+                        String id=object.getString("id");
+                        String name=object.getString("name");
+                        String grade=object.getString("grade");
+                        Log.d("result",id+"--"+name+"--"+grade);
+                    }
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
