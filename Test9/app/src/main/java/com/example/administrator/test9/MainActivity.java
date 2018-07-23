@@ -15,6 +15,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
     TextView textView;
     private URL url;
@@ -28,24 +32,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    url = new URL("https://www.baidu.com");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                    url=new URL("https://www.baidu.com");
+                    OkHttpClient okHttpClient=new OkHttpClient();
+                    Request request=new Request.Builder().url(url).build();
+                    Response response=okHttpClient.newCall(request).execute();
+                    final String s =response.body().string();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setText(s);
+                        }
+                    });
 
-                }
-                try {
-                    HttpURLConnection httpURLConnection= (HttpURLConnection) url.openConnection();
-                    httpURLConnection.setReadTimeout(5000);
-                    httpURLConnection.setRequestMethod("GET");
-                    httpURLConnection.setConnectTimeout(5000);
-                    InputStream inputStream=httpURLConnection.getInputStream();
-                    BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder builder=new StringBuilder();
-                    String s=null;
-                    while ((s=bufferedReader.readLine())!=null){
-                        builder.append(s);
-                    }
-                    textView.setText(builder.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
