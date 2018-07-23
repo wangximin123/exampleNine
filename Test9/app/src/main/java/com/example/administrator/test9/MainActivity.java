@@ -7,6 +7,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -17,9 +20,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.ContentHandler;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -38,38 +46,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    url=new URL("http://192.168.3.81:8080/Student.xml");
-                    OkHttpClient okHttpClient=new OkHttpClient();
-                    Request request=new Request.Builder().url(url).build();
-                    Response response=okHttpClient.newCall(request).execute();
-                    String s =response.body().string();
-                    XmlPullParserFactory factory=XmlPullParserFactory.newInstance();
-                    XmlPullParser xmlPullParser=factory.newPullParser();
-                    xmlPullParser.setInput(new StringReader(s));
-                    int type=xmlPullParser.getEventType();
-                    String id=null,name=null,grade=null;
-                    while (type!=XmlPullParser.END_DOCUMENT){
-                        String nodeName=xmlPullParser.getName();
-                        switch (type){
-                            case XmlPullParser.START_TAG:
-                                if (nodeName.equals("id")){
-                                    id=xmlPullParser.nextText();
-                                }else if (nodeName.equals("name")){
-                                    name=xmlPullParser.nextText();
-                                }else if (nodeName.equals("grade")){
-                                    grade=xmlPullParser.nextText();
-                                }
-                                break;
-                            case XmlPullParser.END_TAG:
-                                if (nodeName.equals("student")){
-                                    Log.d("result",id+"--"+name+"--"+grade);
-                                }
-                        }
-                        type=xmlPullParser.next();
-                    }
-                } catch (IOException e) {
+                    OkHttpClient client=new OkHttpClient();
+                    Request request=new Request.Builder().url("http://192.168.120.2:8080/Student.xml").build();
+                    Response response=client.newCall(request).execute();
+                    String s=response.body().string();
+                    Log.d("result",s);
+                    SAXParserFactory saxParserFactory=SAXParserFactory.newInstance();
+                    XMLReader xmlReader=saxParserFactory.newSAXParser().getXMLReader();
+                    MyHolder myHolder=new MyHolder();
+                    xmlReader.setContentHandler(myHolder);
+                    xmlReader.parse(new InputSource(new StringReader(s)));
+                } catch (SAXException e) {
                     e.printStackTrace();
-                } catch (XmlPullParserException e) {
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
