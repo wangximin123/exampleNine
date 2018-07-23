@@ -5,7 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +32,7 @@ import java.net.ContentHandler;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -54,17 +60,12 @@ public class MainActivity extends AppCompatActivity {
                     Response response=client.newCall(request).execute();
                     String s=response.body().string();
                     Log.d("result",s);
-                    JSONArray jsonArray=new JSONArray(s);
-                    for (int i=0;i<jsonArray.length();i++){
-                        JSONObject object=jsonArray.getJSONObject(i);
-                        String id=object.getString("id");
-                        String name=object.getString("name");
-                        String grade=object.getString("grade");
-                        Log.d("result",id+"--"+name+"--"+grade);
+                    Gson gson=new Gson();
+                    List<Student> list=gson.fromJson(s,new TypeToken<List<Student>>(){}.getType());
+                    for (Student student:list){
+                        Log.d("result",student.getId()+"--"+student.getName()+"--"+student.getGrade());
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
