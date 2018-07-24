@@ -38,6 +38,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -51,15 +52,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView=findViewById(R.id.textView);
-        HttpUtil.sendRequest("http://192.168.120.2:8080/Student.json", new HttpCallBack() {
+//        HttpUtil.sendRequest("http://192.168.120.2:8080/Student.json", new HttpCallBack() {
+//            @Override
+//            public void onSuccess(String s) {
+//                Log.d("result",s);
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                Log.d("result",e.getMessage());
+//            }
+//        });
+        HttpUtil.sendOkHttpRequest("http://192.168.120.2:8080/Student.json",new okhttp3.Callback(){
+
             @Override
-            public void onSuccess(String s) {
-                Log.d("result",s);
+            public void onFailure(Call call, IOException e) {
+                Log.d("result",e.getMessage());
             }
 
             @Override
-            public void onError(Exception e) {
-                Log.d("result",e.getMessage());
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("result",response.body().string());
             }
         });
 
