@@ -51,25 +51,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView=findViewById(R.id.textView);
-        new Thread(new Runnable() {
+        HttpUtil.sendRequest("http://192.168.120.2:8080/Student.json", new HttpCallBack() {
             @Override
-            public void run() {
-                try {
-                    OkHttpClient client=new OkHttpClient();
-                    Request request=new Request.Builder().url("http://192.168.120.2:8080/Student.json").build();
-                    Response response=client.newCall(request).execute();
-                    String s=response.body().string();
-                    Log.d("result",s);
-                    Gson gson=new Gson();
-                    List<Student> list=gson.fromJson(s,new TypeToken<List<Student>>(){}.getType());
-                    for (Student student:list){
-                        Log.d("result",student.getId()+"--"+student.getName()+"--"+student.getGrade());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public void onSuccess(String s) {
+                Log.d("result",s);
             }
-        }).start();
+
+            @Override
+            public void onError(Exception e) {
+                Log.d("result",e.getMessage());
+            }
+        });
 
     }
 }
